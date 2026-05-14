@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta name="theme-color" content="#090d14"/>
+<meta name="mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+<meta name="apple-mobile-web-app-title" content="Equipes"/>
+<link rel="manifest" href="manifest.json"/>
+<link rel="apple-touch-icon" href="ico_ep.png"/>
+<title>Equipes</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,400&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --bg:#090d14;--surface:#0f1724;--surface2:#182030;--border:#1e2d45;
+  --text:#e8edf5;--text-muted:#4a6080;--text-sub:#7a90b0;
+  --accent:#4f8ef7;--accent2:#f06080;
+  --green:#3de07a;--yellow:#f5c842;
+  --radius:16px;--radius-sm:10px;
+  --shadow-sm:0 1px 4px rgba(0,0,0,.35);
+  --shadow-md:0 4px 24px rgba(0,0,0,.5);
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;font-size:15px;min-height:100dvh;overflow-x:hidden}
+h1,h2,h3{font-family:'Syne',sans-serif}
+
+/* HEADER */
+.hdr{position:sticky;top:0;z-index:100;background:rgba(9,13,20,.92);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);padding:14px 20px 10px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border)}
+.hdr h1{font-size:20px;font-weight:800;letter-spacing:-.3px}
+.hdr h1 b{color:var(--accent)}
+.hdr-r{display:flex;align-items:center;gap:8px}
+.sync-dot{width:8px;height:8px;border-radius:50%;background:var(--border);transition:background .3s;flex-shrink:0}
+.sync-dot.ok{background:var(--green)}
+.sync-dot.err{background:var(--accent2)}
+.sync-dot.loading{background:var(--yellow);animation:pulse 1s infinite}
+.hdr-btn{background:var(--surface);border:1px solid var(--border);border-radius:40px;padding:7px 14px;color:var(--text-sub);font-size:12px;font-family:'Syne',sans-serif;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:6px;transition:all .2s}
+.hdr-btn:hover{border-color:var(--accent);color:var(--accent)}
+.hdr-btn:active{transform:scale(.95)}
+
+/* LAST UPDATE */
+.last-update{text-align:center;font-family:'Syne',sans-serif;font-size:12px;font-weight:600;color:var(--text-sub);background:var(--surface);padding:7px 16px;border-bottom:1px solid var(--border);letter-spacing:.3px;min-height:32px}
+
+/* MAIN */
+.main{padding:16px 16px 100px}
+
+/* SEM NAV */
+.sem-nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+.sem-lbl{font-family:'Syne',sans-serif;font-size:14px;font-weight:700;letter-spacing:.2px}
+.arr{background:var(--surface);border:1px solid var(--border);border-radius:50%;width:36px;height:36px;display:flex;align-items:center;justify-content:center;color:var(--text-sub);cursor:pointer;transition:all .2s;box-shadow:var(--shadow-sm)}
+.arr:hover{border-color:var(--accent);color:var(--accent)}
+.arr:active{transform:scale(.9)}
+
+/* WEEK CARD */
+.week-card{background:var(--surface);border-radius:20px;padding:20px 16px;box-shadow:var(--shadow-md);border:1px solid var(--border)}
+.week-title{display:flex;align-items:center;gap:10px;margin-bottom:20px}
+.week-sq{width:13px;height:13px;border-radius:3px;background:var(--accent);flex-shrink:0}
+.week-title h2{font-size:20px;font-weight:800;letter-spacing:-.3px}
+
+/* DAY ROW */
+.day-row{display:flex;gap:0;padding:18px 10px;margin:0 -10px 10px;border-radius:12px;animation:fadeIn .2s ease;transition:background .2s}
+.row-seg{background:rgba(79,142,247,.05)}
+.row-ter{background:rgba(61,214,140,.05)}
+.row-qua{background:rgba(139,120,255,.05)}
+.row-qui{background:rgba(245,166,35,.05)}
+.row-sex{background:rgba(240,96,128,.05)}
+.day-row.today{box-shadow:0 0 0 1.5px rgba(255,255,255,.22)}
+
+.day-left{width:86px;flex-shrink:0}
+.day-pill{display:inline-flex;font-size:10px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;padding:3px 10px;border-radius:20px;color:#fff;margin-bottom:6px;font-family:'Syne',sans-serif}
+.day-num{font-family:'Syne',sans-serif;font-size:44px;font-weight:800;line-height:1;color:var(--text);letter-spacing:-1px}
+.day-month{font-size:11px;color:var(--text-muted);margin-top:5px;line-height:1.4;font-weight:500}
+
+.day-sep{width:1px;flex-shrink:0;margin:0 16px;align-self:stretch;min-height:60px}
+.sep-seg{background:rgba(79,142,247,.3)}
+.sep-ter{background:rgba(61,214,140,.3)}
+.sep-qua{background:rgba(139,120,255,.3)}
+.sep-qui{background:rgba(245,166,35,.3)}
+.sep-sex{background:rgba(240,96,128,.3)}
+
+.day-events{flex:1;display:flex;flex-direction:column;gap:0;justify-content:center;min-width:0}
+
+/* TEAM ITEM */
+.team-item{padding:0}
+.team-item+.team-item{margin-top:12px;padding-top:12px;border-top:1px dashed var(--border)}
+.team-leader{font-family:'Syne',sans-serif;font-size:15px;font-weight:700;color:var(--text);margin-bottom:5px;line-height:1.2}
+.team-meta-row{display:flex;align-items:flex-start;gap:6px;font-size:12px;color:var(--text-sub);margin-bottom:3px;line-height:1.4}
+.team-meta-row svg{flex-shrink:0;margin-top:1px;opacity:.65}
+.team-obs{font-size:12px;color:var(--text-muted);font-style:italic;margin-top:5px;line-height:1.4}
+.team-members{display:flex;flex-wrap:wrap;gap:4px;margin-top:6px}
+.team-member{font-size:11px;background:var(--surface2);border:1px solid var(--border);border-radius:20px;padding:2px 9px;color:var(--text-muted);font-weight:500}
+
+.day-empty{font-size:13px;color:var(--text-muted);font-style:italic;padding:6px 0;opacity:.7}
+
+/* PILL COLORS */
+.pill-seg{background:#4f8ef7}
+.pill-ter{background:#3dd68c}
+.pill-qua{background:#8b78ff}
+.pill-qui{background:#f5a623}
+.pill-sex{background:#f06080}
+
+/* LOADER */
+.load-ov{position:fixed;inset:0;background:rgba(9,13,20,.88);display:flex;align-items:center;justify-content:center;z-index:999;opacity:0;pointer-events:none;transition:opacity .3s}
+.load-ov.open{opacity:1;pointer-events:all}
+.spinner{width:36px;height:36px;border:3px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite}
+
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--surface2);border:1px solid var(--border);border-radius:40px;padding:10px 20px;font-size:13px;font-weight:500;opacity:0;transition:opacity .25s,transform .25s;z-index:1000;white-space:nowrap;pointer-events:none;box-shadow:var(--shadow-md)}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+@keyframes fadeIn{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:none}}
+
+</style>
+</head>
+<body>
+
+<header class="hdr">
+  <h1>APP Liderados<b>.</b></h1>
+  <div class="hdr-r">
+    <div class="sync-dot" id="syncDot"></div>
+    <button class="hdr-btn" onclick="atualizar()">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="23 4 23 10 17 10"/><path d="M20.5 15a9 9 0 1 1-2.5-7.5L23 10"/></svg>
+      Atualizar
+    </button>
+  </div>
+</header>
+
+<div class="last-update" id="lastUpdate"></div>
+
+<main class="main">
+  <div class="sem-nav">
+    <button class="arr" onclick="mudarSemana(-1)">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+    </button>
+    <span class="sem-lbl" id="semLbl"></span>
+    <button class="arr" onclick="mudarSemana(1)">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+    </button>
+  </div>
+
+  <div class="week-card">
+    <div class="week-title">
+      <div class="week-sq"></div>
+      <h2>Programação da Semana</h2>
+    </div>
+    <div id="weekContent"></div>
+  </div>
+</main>
+
+<div class="load-ov" id="loadOv"><div class="spinner"></div></div>
+<div class="toast" id="toast"></div>
+
+
+<script>
+// ═══════════════════
+//  CONFIG
+// ═══════════════════
+const GH_TOKEN='ghp_XnW3a0C0zdS5'+'2a6AIq0RUAhgCdZzAx0vLOO6';
+const GIST_ID='7b277658b1e0dbadf596f6c8ce252a7d';
+const BASE_GH='https://api.github.com/gists/';
+
+const DN=['Seg','Ter','Qua','Qui','Sex'];
+const PILL=['pill-seg','pill-ter','pill-qua','pill-qui','pill-sex'];
+const ROW=['row-seg','row-ter','row-qua','row-qui','row-sex'];
+const SEP=['sep-seg','sep-ter','sep-qua','sep-qui','sep-sex'];
+const MESES=['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+
+// ═══════════════════
+//  STATE
+// ═══════════════════
+let banco={funcionarios:[],atividades:[],areas:[]};
+let prog={semanaInicio:'',dias:{},atualizadoEm:null};
+let semAtual=null;
+
+// ═══════════════════
+//  UTILS
+// ═══════════════════
+const fmtD=d=>d.toISOString().split('T')[0];
+const fmtBR=s=>{const[y,m,d]=s.split('-');return d+'/'+m;};
+function getSeg(date){const d=new Date(date);const w=d.getDay();d.setDate(d.getDate()-(w===0?6:w-1));d.setHours(0,0,0,0);return d;}
+function getDias(seg){const a=[];for(let i=0;i<5;i++){const d=new Date(seg);d.setDate(seg.getDate()+i);a.push(fmtD(d));}return a;}
+function getEqs(d){if(!prog.dias)prog.dias={};if(!prog.dias[d])prog.dias[d]={equipes:[]};return prog.dias[d].equipes;}
+function nomePorId(arr,id){const f=arr.find(x=>x.id===id);return f?f.nome:'';}
+
+// ═══════════════════
+//  UI
+// ═══════════════════
+function setLoad(v){document.getElementById('loadOv').classList.toggle('open',v);}
+function toast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),2400);}
+function syncDot(s){document.getElementById('syncDot').className='sync-dot '+s;}
+
+// ═══════════════════
+//  GIST
+// ═══════════════════
+async function lerGist(arquivo){
+  const r=await fetch(BASE_GH+GIST_ID,{headers:{'Authorization':'Bearer '+GH_TOKEN}});
+  if(!r.ok)throw new Error();
+  return JSON.parse((await r.json()).files[arquivo].content);
+}
+
+// ═══════════════════
+//  CACHE LOCAL
+// ═══════════════════
+function salvarLocal(){
+  localStorage.setItem('l_banco',JSON.stringify(banco));
+  localStorage.setItem('l_prog',JSON.stringify(prog));
+}
+function carregarLocal(){
+  try{
+    const b=localStorage.getItem('l_banco'),p=localStorage.getItem('l_prog');
+    if(b)banco=JSON.parse(b);if(p)prog=JSON.parse(p);
+  }catch(e){}
+}
+function temLocal(){return!!localStorage.getItem('l_banco');}
+
+async function carregarNuvem(){
+  syncDot('loading');setLoad(true);
+  try{
+    const[b,p]=await Promise.all([lerGist('banco.json'),lerGist('prog.json')]);
+    banco=b||{funcionarios:[],atividades:[],areas:[]};
+    prog=p||{semanaInicio:'',dias:{},atualizadoEm:null};
+    salvarLocal();syncDot('ok');
+  }catch(e){syncDot('err');toast('Sem conexão');}
+  finally{setLoad(false);}
+}
+
+async function atualizar(){
+  await carregarNuvem();
+  renderSemana();renderLastUpdate();
+  toast('✓ Atualizado!');
+}
+
+// ═══════════════════
+//  RENDER
+// ═══════════════════
+function renderLastUpdate(){
+  const el=document.getElementById('lastUpdate');
+  if(!prog.atualizadoEm){el.textContent='Nenhuma atualização registrada';return;}
+  const d=new Date(prog.atualizadoEm);
+  const p=n=>String(n).padStart(2,'0');
+  el.textContent='Última atualização: '+p(d.getDate())+'/'+p(d.getMonth()+1)+'/'+d.getFullYear()+' às '+p(d.getHours())+':'+p(d.getMinutes());
+}
+
+const PIN='<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a7 7 0 0 1 7 7c0 5-7 13-7 13S5 14 5 9a7 7 0 0 1 7-7z"/><circle cx="12" cy="9" r="2.5"/></svg>';
+const GEAR='<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 2v2m0 16v2M2 12h2m16 0h2m-3.5-6.5-1.5 1.5m-9 9-1.5 1.5m0-12 1.5 1.5m9 9 1.5 1.5"/></svg>';
+const USER='<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>';
+
+function renderEquipe(eq){
+  const lider=nomePorId(banco.funcionarios,eq.lider)||'Sem líder';
+  const area=nomePorId(banco.areas,eq.area);
+  const ativs=(eq.atividades||[]).map(id=>nomePorId(banco.atividades,id)).filter(Boolean);
+  const membs=(eq.membros||[]).map(id=>nomePorId(banco.funcionarios,id)).filter(Boolean);
+
+  let h='<div class="team-item">';
+  h+='<div class="team-leader">'+lider+'</div>';
+  if(area)h+='<div class="team-meta-row">'+PIN+'<span>'+area+'</span></div>';
+  if(ativs.length)h+='<div class="team-meta-row">'+GEAR+'<span>'+ativs.join(', ')+'</span></div>';
+  if(membs.length){
+    h+='<div class="team-meta-row">'+USER+'<span>';
+    h+=membs.join(', ')+'</span></div>';
+  }
+  if(eq.obs)h+='<div class="team-obs">'+eq.obs+'</div>';
+  h+='</div>';
+  return h;
+}
+
+function renderSemana(){
+  const dias=getDias(semAtual);
+  document.getElementById('semLbl').textContent=fmtBR(dias[0])+' — '+fmtBR(dias[4]);
+
+  const hoje=fmtD(new Date());
+  let html='';
+  dias.forEach((d,i)=>{
+    const eqs=getEqs(d);
+    const dt=new Date(d+'T12:00:00');
+    const num=String(dt.getDate()).padStart(2,'0');
+    const mes=MESES[dt.getMonth()]+', '+dt.getFullYear();
+    const isHoje=d===hoje;
+
+    html+='<div class="day-row '+ROW[i]+(isHoje?' today':'')+'">';
+    html+='<div class="day-left">';
+    html+='<span class="day-pill '+PILL[i]+'">'+DN[i]+'</span>';
+    html+='<div class="day-num">'+num+'</div>';
+    html+='<div class="day-month">'+mes+'</div>';
+    html+='</div>';
+    html+='<div class="day-sep '+SEP[i]+'"></div>';
+    html+='<div class="day-events">';
+    if(!eqs.length){
+      html+='<div class="day-empty">Sem programação</div>';
+    }else{
+      eqs.forEach(eq=>{html+=renderEquipe(eq);});
+    }
+    html+='</div>';
+    html+='</div>';
+  });
+
+  document.getElementById('weekContent').innerHTML=html;
+}
+
+function initSemana(){
+  const hoje=new Date();
+  if(hoje.getDay()===0){const s=new Date(hoje);s.setDate(hoje.getDate()+1);semAtual=getSeg(s);}
+  else semAtual=getSeg(hoje);
+  if(prog.semanaInicio)semAtual=getSeg(new Date(prog.semanaInicio+'T12:00:00'));
+}
+
+function mudarSemana(dir){
+  semAtual=new Date(semAtual);semAtual.setDate(semAtual.getDate()+dir*7);
+  renderSemana();
+}
+
+// ═══════════════════
+//  INIT
+// ═══════════════════
+async function init(){
+  carregarLocal();
+  if(!temLocal()){
+    await carregarNuvem();
+  }else{
+    syncDot('ok');
+    carregarNuvem().then(()=>{renderSemana();renderLastUpdate();});
+  }
+  initSemana();
+  renderSemana();
+  renderLastUpdate();
+}
+init();
+
+
+if('serviceWorker' in navigator){
+  window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js'));
+}
+</script>
+</body>
+</html>
